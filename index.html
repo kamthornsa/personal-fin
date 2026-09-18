@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Personal Finance Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">฿</div>
+            <div>
+                <strong>MoneyTrack</strong>
+                <small>Personal Finance</small>
+            </div>
+        </div>
+
+        <nav>
+            <button class="nav-item active" data-section="dashboard">
+                <span>📊</span>
+                Dashboard
+            </button>
+
+            <button class="nav-item" data-section="transactions">
+                <span>💳</span>
+                รายการทั้งหมด
+            </button>
+
+            <button class="nav-item" data-section="add">
+                <span>➕</span>
+                เพิ่มรายการ
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button id="darkModeBtn" class="nav-item">
+                <span>🌙</span>
+                Dark Mode
+            </button>
+
+            <button id="exportBtn" class="nav-item">
+                <span>📥</span>
+                Export CSV
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- Header -->
+        <header class="topbar">
+
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p>จัดการรายรับและรายจ่ายของคุณ</p>
+            </div>
+
+            <button class="primary-btn" id="quickAddBtn">
+                + เพิ่มรายการ
+            </button>
+
+        </header>
+
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <section id="dashboardSection" class="section active">
+
+            <!-- Month Filter -->
+            <div class="toolbar">
+
+                <div>
+                    <label>เดือน</label>
+                    <input type="month" id="dashboardMonth">
+                </div>
+
+                <button class="secondary-btn" id="thisMonthBtn">
+                    เดือนนี้
+                </button>
+
+            </div>
+
+
+            <!-- Summary Cards -->
+
+            <div class="summary-grid">
+
+                <div class="summary-card income">
+
+                    <div class="card-icon">💰</div>
+
+                    <div>
+                        <span>รายรับ</span>
+                        <h2 id="totalIncome">฿0.00</h2>
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card expense">
+
+                    <div class="card-icon">💸</div>
+
+                    <div>
+                        <span>รายจ่าย</span>
+                        <h2 id="totalExpense">฿0.00</h2>
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card balance">
+
+                    <div class="card-icon">💵</div>
+
+                    <div>
+                        <span>คงเหลือ</span>
+                        <h2 id="totalBalance">฿0.00</h2>
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card count">
+
+                    <div class="card-icon">🧾</div>
+
+                    <div>
+                        <span>จำนวนรายการ</span>
+                        <h2 id="transactionCount">0</h2>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Charts -->
+
+            <div class="charts-grid">
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <h3>รายรับ / รายจ่าย</h3>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <h3>ค่าใช้จ่ายตามหมวดหมู่</h3>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Recent Transactions -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>รายการล่าสุด</h3>
+
+                    <button class="text-btn" id="viewAllBtn">
+                        ดูทั้งหมด →
+                    </button>
+
+                </div>
+
+                <div id="recentTransactions"></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= TRANSACTIONS ================= -->
+
+        <section id="transactionsSection" class="section">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>รายการทั้งหมด</h3>
+
+                    <button class="primary-btn" id="addTransactionBtn">
+                        + เพิ่มรายการ
+                    </button>
+
+                </div>
+
+
+                <div class="filters">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="🔎 ค้นหารายการ..."
+                    >
+
+                    <select id="typeFilter">
+
+                        <option value="all">ทั้งหมด</option>
+
+                        <option value="income">
+                            รายรับ
+                        </option>
+
+                        <option value="expense">
+                            รายจ่าย
+                        </option>
+
+                    </select>
+
+
+                    <select id="categoryFilter">
+
+                        <option value="all">
+                            ทุกหมวดหมู่
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+                            <th>วันที่</th>
+                            <th>รายการ</th>
+                            <th>หมวดหมู่</th>
+                            <th>ประเภท</th>
+                            <th>จำนวนเงิน</th>
+                            <th></th>
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="transactionTable"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= ADD ================= -->
+
+        <section id="addSection" class="section">
+
+            <div class="panel form-panel">
+
+                <div class="panel-header">
+
+                    <h3 id="formTitle">
+                        เพิ่มรายการ
+                    </h3>
+
+                </div>
+
+
+                <form id="transactionForm">
+
+                    <input
+                        type="hidden"
+                        id="editId"
+                    >
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label>ประเภท</label>
+
+                            <div class="type-buttons">
+
+                                <button
+                                    type="button"
+                                    class="type-btn income-btn active"
+                                    data-type="income"
+                                >
+                                    💰 รายรับ
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="type-btn expense-btn"
+                                    data-type="expense"
+                                >
+                                    💸 รายจ่าย
+                                </button>
+
+                            </div>
+
+                            <input
+                                type="hidden"
+                                id="transactionType"
+                                value="income"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>จำนวนเงิน</label>
+
+                            <input
+                                type="number"
+                                id="amount"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>รายการ</label>
+
+                            <input
+                                type="text"
+                                id="description"
+                                placeholder="เช่น เงินเดือน, ค่าอาหาร"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>หมวดหมู่</label>
+
+                            <select id="category" required></select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>วันที่</label>
+
+                            <input
+                                type="date"
+                                id="date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>หมายเหตุ</label>
+
+                            <input
+                                type="text"
+                                id="note"
+                                placeholder="รายละเอียดเพิ่มเติม..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="button"
+                            class="secondary-btn"
+                            id="cancelBtn"
+                        >
+                            ยกเลิก
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="primary-btn"
+                        >
+                            บันทึกรายการ
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- Modal -->
+
+<div id="deleteModal" class="modal">
+
+    <div class="modal-box">
+
+        <h3>ลบรายการ?</h3>
+
+        <p>
+            คุณต้องการลบรายการนี้หรือไม่?
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-btn"
+                id="closeModal"
+            >
+                ยกเลิก
+            </button>
+
+            <button
+                class="danger-btn"
+                id="confirmDelete"
+            >
+                ลบรายการ
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
